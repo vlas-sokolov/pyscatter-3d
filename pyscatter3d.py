@@ -1,24 +1,3 @@
-# TODO: move to README or TODO files
-
-# TODO: replace print warnings with logging messages
-
-# TODO: refactor into an OOP structure, this starts to feel a bit bulky
-
-# TODO: display all the info from parent .csv file on hover!
-# here's something to use: https://plot.ly/ggplot2/interactive-tooltip/
-
-# TODO: add other plotting backends? probably should look into vispy
-
-# TODO: allow input data from DisPerSE?
-
-# TODO: add errorbar plotting f-ns?
-
-# TODO: command-line functionality, with lists of .csv files passed as args
-
-# TODO: enforce pep8!
-
-# FIXME: variable sizes do not work in matplotlib
-
 import numpy as np
 import pandas as pd
 
