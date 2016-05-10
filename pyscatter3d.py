@@ -47,7 +47,6 @@ def pyscatter3d(datasets, line2text, line2color, line2symbol,
                 yaxis_label='Y', yaxis_range=[None,None],
                 zaxis_label='Z', zaxis_range=[None,None],
                 remove_plotly_cloud_button=False):
-    backend = 'both' # can be 'plotly', 'matplotlib', or 'both'
     
     do_plotly = False if backend is 'matplotlib' else True
     do_matplotlib = False if backend is 'plotly' else True
