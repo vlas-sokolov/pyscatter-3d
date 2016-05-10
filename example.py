@@ -22,14 +22,12 @@ datasets = {'sinc'  : 'sinc.csv',
 
 # what column names to use as X/Y/Z values
 which_x, which_y, which_z = 'X', 'Y', 'Z'
-# which_s controls the marker size
+# which_s controls the marker size: if the column isn't found in one
+# of the data sets, a constant default size is assumed
 which_s = 'inv_dist'
 
 # output file name (without an extension)
 outfile = 'example'
-
-default_size = {'matplotlib': 30,              
-                'plotly'    : 10 }
 
 line2text  = {'sinc': 'sinc(r)', 'sphere': 'sphere' }
 line2color = {'sinc': '#e41a1c', 'sphere': '#377eb8'}
@@ -42,6 +40,6 @@ line2symbol = {'matplotlib': {'sphere': 'd',       'sinc': 'o'     },
 
 # plotting both matplotlib and plotly figures:
 method = 'both' # allowed values: 'matplotlib', 'plotly', and 'both'
-pyscatter3d(datasets, line2text, line2color, line2symbol,
-            which_x, which_y, which_z, which_s, default_size,
-            outfile=outfile, backend=method)
+pyscatter3d(datasets, line2text, line2color, line2symbol, which_x,
+            which_y, which_z, which_s, outfile=outfile, backend=method,
+            marker_srange={'plotly': 10, 'matplotlib': 100})

@@ -10,7 +10,6 @@ def values_to_sizes(values, size, size_range):
     sizes = (values-medval)/(maxval-medval)*size_range + size
     return sizes
 
-# NOTE: the default size values are plotly-specific and resoultion-dependent!
 def get_size(df, key, size=10, size_range=9):
     try:
         return values_to_sizes(df[key], size, size_range)
@@ -41,13 +40,21 @@ def merge_df(df, merged_column, columns = [], delete_originals=True, **kwargs):
 
 def pyscatter3d(datasets, line2text, line2color, line2symbol,
                 which_x, which_y, which_z, which_s,
-                default_size, outfile='output', plot_title='',
+                outfile='output', plot_title='',
                 backend='both', combine_columns={},
                 xaxis_label='X', xaxis_range=[None,None], 
                 yaxis_label='Y', yaxis_range=[None,None],
                 zaxis_label='Z', zaxis_range=[None,None],
+                marker_size=None, marker_srange=None,
                 remove_plotly_cloud_button=False):
-    
+
+    if type(marker_size) is int:
+        marker_size = {'matplotlib': marker_size,'plotly': marker_size}
+    if type(marker_srange) is int:
+        marker_srange = {'matplotlib': marker_srange,'plotly': marker_srange}
+    marker_size   = marker_size   or {'matplotlib': 30,'plotly': 10}
+    marker_srange = marker_srange or {'matplotlib': 25,'plotly': 9}
+
     do_plotly = False if backend is 'matplotlib' else True
     do_matplotlib = False if backend is 'plotly' else True
     try:
@@ -93,8 +100,8 @@ def pyscatter3d(datasets, line2text, line2color, line2symbol,
         if do_matplotlib:
             ax.scatter(xs=X, ys=Y, zs=Z,
                        s=get_size(ppv[line]['df'], which_s,
-                                  size=default_size['matplotlib'],
-                                  size_range=int(default_size['matplotlib']*0.5)),
+                                  size=marker_size['matplotlib'],
+                                  size_range=marker_srange['matplotlib']),
                        zdir='z',
                        # fix that: I think ditching lists is ok.
                        marker=line2symbol['matplotlib'][line],
@@ -107,7 +114,8 @@ def pyscatter3d(datasets, line2text, line2color, line2symbol,
                     name = line2text[line],
                     x = X, y = Y, z = Z,
                     marker = dict(size=get_size(ppv[line]['df'], which_s,
-                                                size=default_size['plotly']),
+                                        size=marker_size['plotly'],
+                                        size_range=marker_srange['plotly']),
                                   color=line2color[line],
                                   symbol=[line2symbol['plotly'][line]]*len(X)))
             # setting default plotting parameters

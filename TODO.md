@@ -8,4 +8,4 @@
 - [ ] Add errorbar plotting routines.
 - [ ] Command-line functionality, with lists of .csv files passed as args
 - [ ] Enforce pep8!
-- [ ] Variable sizes do not work in matplotlib yet.
+- [x] Variable sizes do not work in matplotlib yet.
