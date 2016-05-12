@@ -1,6 +1,6 @@
 # Items on the to-do list:
 
-- [ ] Replace print warnings with logging messages
+- [x] Replace print warnings with logging messages
 - [ ] Refactor into an OOP structure, this starts to feel a bit bulky
 - [ ] Display all the info from parent .csv file on hover. [This might help](https://plot.ly/ggplot2/interactive-tooltip/)
 - [ ] Add other plotting backends? Probably should look into vispy

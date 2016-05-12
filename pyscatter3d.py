@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from logging import warning
 
 def values_to_sizes(values, size, size_range):
     maxval, minval = np.nanmax(values), np.nanmin(values)
@@ -65,7 +66,7 @@ def pyscatter3d(datasets, line2text, line2color, line2symbol,
                                    xaxis_range, yaxis_range, zaxis_range )
     except ImportError:
         if backend is 'both':
-            print "WARNING: can't import plotly, switching to matplotlib only."
+            warning(" Can't import plotly, switching to matplotlib only.")
             do_plotly = False
         elif backend is 'plotly':
             raise ImportError("Can't import plotly!")
@@ -95,7 +96,7 @@ def pyscatter3d(datasets, line2text, line2color, line2symbol,
                        ppv[line]['df'][which_y],
                        ppv[line]['df'][which_z] )
         except KeyError as err:
-            print "WARNING: "+str(err)+"- plotting '%s' will not be possible!"%line
+            warning(" "+str(err)+"- plotting '%s' will not be possible!"%line)
             continue
         if do_matplotlib:
             ax.scatter(xs=X, ys=Y, zs=Z,
