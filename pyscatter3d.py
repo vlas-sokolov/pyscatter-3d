@@ -60,7 +60,8 @@ def pyscatter3d(datasets, line2text, line2color, line2symbol,
     do_matplotlib = False if backend is 'plotly' else True
     try:
         import plotly
-        from use_plotly import get_plotly_layout, defaults_3d, remove_plotly_buttons
+        from use_plotly import (get_plotly_layout, defaults_3d,
+                                remove_plotly_buttons)
         layout = get_plotly_layout(plot_title,
                                    xaxis_label, yaxis_label, zaxis_label,
                                    xaxis_range, yaxis_range, zaxis_range )
