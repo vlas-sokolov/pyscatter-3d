@@ -1,12 +1,14 @@
 import matplotlib.pylab as plt
 from mpl_toolkits.mplot3d import axes3d
 plt.rc('text', usetex=True)
+from logging import warning
 
 def matplotlib_make_figure(figsize=(10,7), style='seaborn-dark'):
     try:
         plt.style.use(style)
-    except IOError:
-        plt.style.use('default')
+    except ValueError:
+        warning(" matplotlib style %s not found." % style)
+        pass
 
     fig=plt.figure('scatter3d', figsize)
     plt.gcf().set_tight_layout(True)
