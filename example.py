@@ -1,5 +1,5 @@
 import numpy as np
-from pyscatter3d import pyscatter3d
+from pyscatter3d import ScatterPlot
 
 # generating an sinc(R) dataset
 X0, Y0 = np.meshgrid(np.linspace(-3,3,50), np.linspace(-3,3,50))
@@ -40,6 +40,8 @@ line2symbol = {'matplotlib': {'sphere': 'd',       'sinc': 'o'     },
 
 # plotting both matplotlib and plotly figures:
 method = 'both' # allowed values: 'matplotlib', 'plotly', and 'both'
-pyscatter3d(datasets, line2text, line2color, line2symbol, which_x,
-            which_y, which_z, which_s, outfile=outfile, backend=method,
-            marker_srange={'plotly': 10, 'matplotlib': 100})
+pysc = ScatterPlot(datasets, which_x, which_y, which_z, which_s, 
+                   line2text, line2color, line2symbol,
+                   outfile=outfile, backend=method,
+                   marker_srange={'plotly': 10, 'matplotlib': 100})
+pysc.plot()
