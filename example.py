@@ -40,6 +40,7 @@ line2symbol = {'matplotlib': {'sphere': 'd',       'sinc': 'o'     },
 
 # plotting both matplotlib and plotly figures:
 method = 'both' # allowed values: 'matplotlib', 'plotly', and 'both'
-pysc = ScatterPlot(datasets, line2text, line2color, line2symbol, which_x,
-                   which_y, which_z, which_s, outfile=outfile, backend=method,
+pysc = ScatterPlot(datasets, which_x, which_y, which_z, which_s, 
+                   line2text, line2color, line2symbol,
+                   outfile=outfile, backend=method,
                    marker_srange={'plotly': 10, 'matplotlib': 100})

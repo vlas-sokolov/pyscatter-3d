@@ -4,8 +4,13 @@ here to avoid cluttering of the main plotting script.
 """
 defaults_3d = dict(mode = "markers", type = "scatter3d", opacity = 0.5)
 
-def get_plotly_layout(title=None, x_label=None, y_label=None, z_label=None, 
-                                  x_range=None, y_range=None, z_range=None ):
+def get_plotly_layout(plotter):
+    title = plotter.plot_title
+    x_label, y_label, z_label = (plotter.xaxis_label, 
+            plotter.yaxis_label, plotter.zaxis_label)
+    x_range, y_range, z_range = (plotter.xaxis_range, 
+            plotter.yaxis_range, plotter.zaxis_range)
+
     family = 'Computer Modern' # usually used for TeX stuff
     titlefont = dict(family=family, size=18, color='black')
     axisfont  = dict(family=family, size=18, color='grey')
