@@ -7,5 +7,5 @@
 - [ ] Allow input data from DisPerSE.
 - [ ] Add errorbar plotting routines.
 - [ ] Command-line functionality, with lists of .csv files passed as args
-- [x] Enforce pep8!
+- [ ] Enforce pep8!
 - [x] Variable sizes do not work in matplotlib yet.
