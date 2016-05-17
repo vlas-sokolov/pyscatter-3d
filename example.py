@@ -44,3 +44,4 @@ pysc = ScatterPlot(datasets, which_x, which_y, which_z, which_s,
                    line2text, line2color, line2symbol,
                    outfile=outfile, backend=method,
                    marker_srange={'plotly': 10, 'matplotlib': 100})
+pysc.plot()

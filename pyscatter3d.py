@@ -66,7 +66,8 @@ class Plotter():
         if type(marker_size) is int:
             marker_size = {'matplotlib': marker_size,'plotly': marker_size}
         if type(marker_srange) is int:
-            marker_srange = {'matplotlib': marker_srange,'plotly': marker_srange}
+            marker_srange = {'matplotlib': marker_srange,
+                             'plotly'    : marker_srange }
         self.marker_size   = marker_size   or {'matplotlib': 30,'plotly': 10}
         self.marker_srange = marker_srange or {'matplotlib': 25,'plotly': 9}
 
@@ -80,7 +81,6 @@ class ScatterPlot(): # TODO: inherit from dataframe maybe?
     """
     def __init__(self, datasets, which_x, which_y, which_z, which_s, 
                  dset2text, dset2color, dset2symbol, **kwargs):
-        print kwargs
         scatter_default_args = dict(kill_plotly_button = False, 
                                     backend            = 'both',
                                     combine_columns    = {}     )
@@ -103,7 +103,8 @@ class ScatterPlot(): # TODO: inherit from dataframe maybe?
 
         #for key, val in kwargs.iteritems():
         #    setattr(self.plot, key, val)
-        combine_columns = kwargs.get('combine_columns') if 'combine_columns' in kwargs else {}
+        combine_columns = (kwargs.get('combine_columns') if
+                            'combine_columns' in kwargs else {})
         self.combine_columns = combine_columns
 
         # read in the lists of .csv files
@@ -166,7 +167,10 @@ class ScatterPlot(): # TODO: inherit from dataframe maybe?
     def _plotfunc(self, outfile='figure'):
         xlab, ylab, zlab, slab = (self.plot.which_x, self.plot.which_y,
                                   self.plot.which_z, self.plot.which_s )
-
+        msize, mrange = self.plot.marker_size, self.plot.marker_srange
+        get_col=self.plot.dset2color
+        get_sym=self.plot.dset2symbol
+        get_txt=self.plot.dset2text
         # TODO: move it somewhere else?
         # could put it as an attribute under self.plotly_conf
         from use_plotly import defaults_3d
@@ -177,37 +181,40 @@ class ScatterPlot(): # TODO: inherit from dataframe maybe?
                            self.data[dset][ylab],
                            self.data[dset][zlab] )
             except KeyError as err:
-                warning(" "+str(err)+"- plotting '%s' will not be possible!"%dset)
+                warning(" %s- plotting '%s' will not"
+                        " be possible!" % (dset, str(err)))
                 continue
             if self.plt_conf.can_use:
                self.plt_conf.axis.scatter(xs=X, ys=Y, zs=Z,
                            s=get_size(self.data[dset], slab,
-                                      size=self.plot.marker_size['matplotlib'],
-                                      size_range=self.plot.marker_srange['matplotlib']),
+                                      size=msize['matplotlib'],
+                                      size_range=mrange['matplotlib']),
                            zdir='z',
                            # fix that: I think ditching lists is ok.
-                           marker=self.plot.dset2symbol['matplotlib'][dset],
-                           c=self.plot.dset2color[dset],
+                           marker=get_sym['matplotlib'][dset],
+                           c=get_col[dset],
                            alpha=0.4, # TODO: make it flexible
                            edgecolor='#636363',
-                           label=self.plot.dset2text[dset])
+                           label=get_txt[dset])
             if self.plotly_conf.can_use:
                 # TODO: this needs to be moved to self.plotly_conf.data
                 self.plotly_conf.data[dset] = dict(
-                        name = self.plot.dset2text[dset],
+                        name = get_txt[dset],
                         x = X, y = Y, z = Z,
                         marker = dict(size=get_size(self.data[dset], slab,
-                                            size=self.plot.marker_size['plotly'],
-                                            size_range=self.plot.marker_srange['plotly']),
-                                      color=self.plot.dset2color[dset],
-                                      symbol=[self.plot.dset2symbol['plotly'][dset]]*len(X)))
+                                               size=msize['plotly'],
+                                               size_range=mrange['plotly']),
+                                      color=get_col[dset],
+                                      symbol=len(X)*[get_sym['plotly'][dset]])
+                        )
                 # setting default plotting parameters
                 self.plotly_conf.data[dset].update(defaults_3d)
         
         if self.plotly_conf.can_use:
             from plotly import offline
             from use_plotly import remove_plotly_buttons
-            fig = dict(data=self.plotly_conf.data.values(), layout=self.plotly_conf.layout)
+            fig = dict(data=self.plotly_conf.data.values(),
+                       layout=self.plotly_conf.layout)
             # Use py.iplot() for IPython notebook
             url = offline.plot(fig, filename=outfile,
                                show_link=False, auto_open=False)
