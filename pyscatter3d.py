@@ -153,13 +153,13 @@ class Scatter(): # TODO: inherit from self.dataframe maybe?
             fig = dict(data=[self.data[dset]['plotly'] for dset in self.data.keys() 
                        if 'plotly' in self.data[dset].keys()], layout=layout)
             # Use py.iplot() for IPython notebook
-            url = plotly.offdset.plot(fig, filename=outfile,
+            url = plotly.offline.plot(fig, filename=outfile,
                               show_link=False, auto_open=False)
             # don't want anyone importing private data 
             # into plotly via an accidental button click
             if remove_plotly_cloud_button:
                 remove_plotly_buttons(url)
-            plotly.offdset.offdset.webbrowser.open(url)
+            plotly.offline.offline.webbrowser.open(url)
         
         if do_matplotlib:
             matplotlib_set_plot(ax, plot_title, outfile,
