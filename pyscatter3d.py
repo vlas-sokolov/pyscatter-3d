@@ -101,12 +101,6 @@ class ScatterPlot(): # TODO: inherit from dataframe maybe?
         self.plot.dset2color  = dset2color
         self.plot.dset2symbol = dset2symbol
 
-        #for key, val in kwargs.iteritems():
-        #    setattr(self.plot, key, val)
-        combine_columns = (kwargs.get('combine_columns') if
-                            'combine_columns' in kwargs else {})
-        self.combine_columns = combine_columns
-
         # read in the lists of .csv files
         self.read_data(datasets)
 
