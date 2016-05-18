@@ -11,20 +11,14 @@ _ = np.random.randn(3, 1e3)
 X1,Y1,Z1 = _/np.linalg.norm(_, axis=0)
 
 np.savetxt('sinc.csv', np.array([arr.flatten() for arr in [X0,Y0,Z0,1/D]]).T,
-           delimiter=',', header='X,Y,Z,inv_dist', comments='')
+           delimiter=',', header='A,B,C,inv_dist', comments='')
 
 np.savetxt('sphere.csv', np.array([arr.flatten() for arr in [X1,Y1,Z1]]).T,
-           delimiter=',', header='X,Y,Z', comments='')
+           delimiter=',', header='A,B,C', comments='')
 
 # dataset names and their corresponding filenames
-datasets = {'sinc'  : 'sinc.csv',
+filedict = {'sinc'  : 'sinc.csv',
             'sphere': 'sphere.csv'}
-
-# what column names to use as X/Y/Z values
-which_x, which_y, which_z = 'X', 'Y', 'Z'
-# which_s controls the marker size: if the column isn't found in one
-# of the data sets, a constant default size is assumed
-which_s = 'inv_dist'
 
 # output file name (without an extension)
 outfile = 'example'
@@ -38,10 +32,9 @@ line2color = {'sinc': '#e41a1c', 'sphere': '#377eb8'}
 line2symbol = {'matplotlib': {'sphere': 'd',       'sinc': 'o'     },
                'plotly'    : {'sphere': 'diamond', 'sinc': 'circle'} }
 
-# plotting both matplotlib and plotly figures:
+# plotting both matplotlib and plotly figures, using A, B, and C as X,Y,Z:
 method = 'both' # allowed values: 'matplotlib', 'plotly', and 'both'
-pysc = ScatterPlot(datasets, which_x, which_y, which_z, which_s, 
-                   line2text, line2color, line2symbol,
-                   outfile=outfile, backend=method,
-                   marker_srange={'plotly': 10, 'matplotlib': 100})
+pysc = ScatterPlot(x='A', y='B', z='C', s='inv_dist', datasets=filedict,
+                   labels=line2text, colors=line2color, symbols=line2symbol,
+                   backend=method)
 pysc.plot()

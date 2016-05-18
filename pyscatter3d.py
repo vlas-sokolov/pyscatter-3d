@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from logging import warning
+import six
 
 def values_to_sizes(values, size, size_range):
     maxval, minval = np.nanmax(values), np.nanmin(values)
@@ -39,28 +40,48 @@ def merge_df(df, merged_column, columns = [], delete_originals=True, **kwargs):
                     pass
     return df
 
-class Backend(): 
-    pass
+class Backend():
+    def __init__(self, which, kill_plotly_button=False, **kwargs):
+        if which is 'plotly':
+            self.data = {} # TODO: not a good idea?
+            self.kill_button = kill_plotly_button
+        if which is 'plt' or which is 'matplotlib':
+            pass
 
 class Plotter():
     """
     This class holds general plotting variables and
     should be called as a main plotting function
     """
-    def __init__(self, plotfunc, 
+    def __init__(self, x='X', y='Y', z='Z', s='S',
+                 labels=None, colors=None, symbols=None,
                  outfile='output', plot_title='',
-                 xaxis_label='X', xaxis_range=[None,None], 
-                 yaxis_label='Y', yaxis_range=[None,None],
-                 zaxis_label='Z', zaxis_range=[None,None],
-                 marker_size=None, marker_srange=None):
+                 xlabel='X', xrange=[None,None],
+                 ylabel='Y', yrange=[None,None],
+                 zlabel='Z', zrange=[None,None],
+                 marker_size=None, marker_srange=None, **kwargs):
+        """
+        Returns a collection of general plotting parameters.
 
-        self._plotfunc = plotfunc
-        self.xaxis_label = xaxis_label
-        self.yaxis_label = yaxis_label
-        self.zaxis_label = zaxis_label
-        self.xaxis_range = xaxis_range
-        self.yaxis_range = yaxis_range
-        self.zaxis_range = zaxis_range
+        TODO: docstring with parameter description.
+        """
+        self.which_x = x
+        self.which_y = y
+        self.which_z = z
+        self.which_s = s
+        from collections import defaultdict
+        self.dset2text   =  labels  or defaultdict(lambda: None)
+        self.dset2color  =  colors  or defaultdict(lambda: None)
+        self.dset2symbol = (symbols or
+            {'matplotlib': defaultdict(lambda: 'o'),
+             'plotly'    : defaultdict(lambda: 'circle')})
+
+        self.xaxis_label = xlabel
+        self.yaxis_label = ylabel
+        self.zaxis_label = zlabel
+        self.xaxis_range = xrange
+        self.yaxis_range = yrange
+        self.zaxis_range = zrange
         self.plot_title  = plot_title
 
         if type(marker_size) is int:
@@ -79,45 +100,30 @@ class ScatterPlot(): # TODO: inherit from dataframe maybe?
     A class that holds all the self.data to be plotted, as well as a variety
     of the plotting functions for different backends.
     """
-    def __init__(self, datasets, which_x, which_y, which_z, which_s, 
-                 dset2text, dset2color, dset2symbol, **kwargs):
-        scatter_default_args = dict(kill_plotly_button = False, 
-                                    backend            = 'both',
-                                    combine_columns    = {}     )
-        for key, def_val in scatter_default_args.iteritems():
-            if key in kwargs:
-                setattr(self, key, kwargs.get(key))
-                kwargs.pop(key)
-            else:
-                setattr(self, key, def_val)
-
-        # a holder for general plotting parameters
-        self.plot = Plotter(self._plotfunc, **kwargs)
-        self.plot.which_x = which_x
-        self.plot.which_y = which_y
-        self.plot.which_z = which_z
-        self.plot.which_s = which_s
-        self.plot.dset2text   = dset2text
-        self.plot.dset2color  = dset2color
-        self.plot.dset2symbol = dset2symbol
+    def __init__(self, **kwargs):
+        self.plot = Plotter(**kwargs)
+        self.plot._plotfunc = self._plotfunc
+        self.plt_conf = Backend('matplotlib', **kwargs)
+        self.plotly_conf = Backend('plotly', **kwargs)
+        self.set_backend(**kwargs)
 
         # read in the lists of .csv files
-        self.read_data(datasets)
-
-        # set up some plotting parameters
-        self.plt_conf = Backend()
-        self.plotly_conf = Backend()
-        self.plotly_conf.data = {} # TODO: not a good idea?
-        self.plotly_conf.kill_button = self.kill_plotly_button
-        self.init_plot(self.backend)
+        self.read_data(**kwargs)
 
     def __getitem__(self, dset):
         """
-        Returns pandas dataframe
+        Returns pandas dataframe.
         """
         return self.data[dset]
 
-    def init_plot(self, backend):
+    def set_backend(self, backend = 'both', **kwargs):
+        """
+        Set the backend(s) to be used for plotting.
+
+        Parameters
+        ----------
+        backend : str, can be 'plotly', 'matplotlib', or 'both'
+        """
         # this does not agree with the oop-approach, to be resolved elsewhere
         self.plotly_conf.can_use = False if backend is 'matplotlib' else True
         self.plt_conf.can_use = False if backend is 'plotly' else True
@@ -139,14 +145,19 @@ class ScatterPlot(): # TODO: inherit from dataframe maybe?
             self.plt_conf.axis = ax
             self.plt_conf.figure = fig
 
-    def read_data(self, datasets):
-        # reading in and processing the .csv files
+    def read_data(self, datasets=None, combine_columns={}, **kwargs):
         self.data = {}
+        self.combine_columns = combine_columns
+        if datasets is None:
+            warning(" No data to read. Try setting the `datasets` keyword.")
+            return
+
+        # reading in and processing the .csv files
         for dset, fname in datasets.iteritems():
             self.data[dset] = pd.read_csv(fname)
         
         for dset in self.data.keys():
-            for key_merged, keys_to_merge in self.combine_columns.iteritems():
+            for key_merged, keys_to_merge in combine_columns.iteritems():
                 self.data[dset] = merge_df(self.data[dset], key_merged,
                                            keys_to_merge, verify_integrity=True)
             # TODO: this should be optional, right?
@@ -179,17 +190,25 @@ class ScatterPlot(): # TODO: inherit from dataframe maybe?
                         " be possible!" % (dset, str(err)))
                 continue
             if self.plt_conf.can_use:
-               self.plt_conf.axis.scatter(xs=X, ys=Y, zs=Z,
+                ax = self.plt_conf.axis
+                ax.scatter(xs=X, ys=Y, zs=Z,
                            s=get_size(self.data[dset], slab,
                                       size=msize['matplotlib'],
                                       size_range=mrange['matplotlib']),
                            zdir='z',
                            # fix that: I think ditching lists is ok.
                            marker=get_sym['matplotlib'][dset],
-                           c=get_col[dset],
+                           # TODO: this abomination needs to be removed!
+                           # if c=None is passed, bad things happen . . .
+                           # Fixed, but only in April 2016, see here:
+                           # github.com/matplotlib/matplotlib/issues/5990
+                           c=six.next(ax._get_patches_for_fill.prop_cycler
+                               )['color'] if get_col[dset] is None
+                                          else get_col[dset],
                            alpha=0.4, # TODO: make it flexible
                            edgecolor='#636363',
-                           label=get_txt[dset])
+                           label=dset if get_txt[dset] is None
+                                      else get_txt[dset])
             if self.plotly_conf.can_use:
                 # TODO: this needs to be moved to self.plotly_conf.data
                 self.plotly_conf.data[dset] = dict(
