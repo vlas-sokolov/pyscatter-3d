@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 from logging import warning
-import six
 
 def values_to_sizes(values, size, size_range):
     maxval, minval = np.nanmax(values), np.nanmin(values)
@@ -179,7 +178,7 @@ class ScatterPlot(): # TODO: inherit from dataframe maybe?
         # TODO: move it somewhere else?
         # could put it as an attribute under self.plotly_conf
         from use_plotly import defaults_3d
-
+        from use_matplotlib import fix_axes3d_color
         for dset in self.data.keys():
             try:
                 X, Y, Z = (self.data[dset][xlab],
@@ -198,13 +197,7 @@ class ScatterPlot(): # TODO: inherit from dataframe maybe?
                            zdir='z',
                            # fix that: I think ditching lists is ok.
                            marker=get_sym['matplotlib'][dset],
-                           # TODO: this abomination needs to be removed!
-                           # if c=None is passed, bad things happen . . .
-                           # Fixed, but only in April 2016, see here:
-                           # github.com/matplotlib/matplotlib/issues/5990
-                           c=six.next(ax._get_patches_for_fill.prop_cycler
-                               )['color'] if get_col[dset] is None
-                                          else get_col[dset],
+                           c=fix_axes3d_color(ax, get_col[dset]),
                            alpha=0.4, # TODO: make it flexible
                            edgecolor='#636363',
                            label=dset if get_txt[dset] is None
