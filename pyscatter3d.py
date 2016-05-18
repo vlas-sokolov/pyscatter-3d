@@ -135,7 +135,7 @@ class ScatterPlot(): # TODO: inherit from dataframe maybe?
         except ImportError:
             if backend is 'both':
                 warning(" Can't import plotly, switching to matplotlib only.")
-                self.backends['plotly']['can_use'] = False
+                self.plotly_conf.can_use = False
             elif backend is 'plotly':
                 raise ImportError("Can't import plotly!")
         
