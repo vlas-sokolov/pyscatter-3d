@@ -115,6 +115,12 @@ class ScatterPlot(): # TODO: inherit from dataframe maybe?
         """
         return self.data[dset]
 
+    def __setitem__(self, dset, item):
+        """
+        Set pandas dataframe.
+        """
+        self.data[dset] = item
+
     def set_backend(self, backend = 'both', **kwargs):
         """
         Set the backend(s) to be used for plotting.
