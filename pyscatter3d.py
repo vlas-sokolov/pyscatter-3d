@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 from logging import warning
 
+# TODO: some functions below should be class methods!
+
 def values_to_sizes(values, size, size_range):
     maxval, minval = np.nanmax(values), np.nanmin(values)
     try:
@@ -17,11 +19,49 @@ def get_size(df, key, size=10, size_range=9):
     except KeyError:
         return np.full((len(df),), size, dtype=np.int64)
 
+def ravel_columns(df, columns_to_ravel=[], new_columns=[]):
+    """
+    "Flattens" the dataframe. Example usage: 
+    >>> ravel_columns(df, [['A1','B1'],['A2','B2']], ['A','B'])
+    
+    will return a dataframe with all A2/B2 values merged under A1/B1 into
+    new columns called A and B. Warning: the remaining columns will be
+    duplicated!
+
+    Parameters
+    ----------
+    df : pandas.DataFrame;
+
+    columns_to_ravel : list of lists; a list of collestions of column names
+                       that will be put under new_columns (see below)
+
+    new_columns : list; new column fields
+
+    Returns
+    -------
+    df : a modified dataframe object
+    """
+    to_merge=[]
+    for old_columns in columns_to_ravel:
+        subdf = df.rename(columns=dict(zip(old_columns, new_columns)))
+        killst = [c for c in columns_to_ravel if c is not old_columns]
+        for killkey in killst:
+            subdf = subdf.drop(killkey, 1)
+        to_merge.append(subdf)
+    # snap, this causes pandas bug #6963!
+    df = pd.concat(to_merge, ignore_index=True)
+    # should remove theth pu
+
+    return df
+
 def merge_df(df, merged_column, columns = [], delete_originals=True, **kwargs):
     """
     Merges several columns of the dataframe into one, removing NaN values.
+    FIXME: does not always work? I think it creates doubles for more than
+    two columns... use ravel_columns for now.
     """
     # TODO: would be nice to know a better, pandas-like, apporach
+    warning(" may contain bugs.")
     to_merge = []
     for col in columns:
         try:
