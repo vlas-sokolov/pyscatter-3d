@@ -198,15 +198,16 @@ class ScatterPlot(): # TODO: inherit from dataframe maybe?
             return
 
         # reading in and processing the .csv files
-        for dset, fname in datasets.iteritems():
+        for dset, fname in datasets.items():
             self.data[dset] = pd.read_csv(fname)
         
         for dset in self.data.keys():
-            for key_merged, keys_to_merge in combine_columns.iteritems():
+            for key_merged, keys_to_merge in combine_columns.items():
                 self.data[dset] = merge_df(self.data[dset], key_merged,
                                            keys_to_merge, verify_integrity=True)
             # TODO: this should be optional, right?
             try:
+                # FIXME: deprecated, removed in new pandas versions... *sigh*
                 self.data[dset].drop_duplicates(cols=[self.plot.which_x,
                                                       self.plot.which_y,
                                                       self.plot.which_z],
@@ -245,7 +246,7 @@ class ScatterPlot(): # TODO: inherit from dataframe maybe?
                            marker=get_sym['matplotlib'][dset],
                            c=fix_axes3d_color(ax, get_col[dset]),
                            alpha=0.4, # TODO: make it flexible
-                           edgecolor='#636363',
+                           edgecolor='none',
                            label=dset if get_txt[dset] is None
                                       else get_txt[dset])
             if self.plotly_conf.can_use:
