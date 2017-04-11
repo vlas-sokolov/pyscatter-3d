@@ -214,6 +214,20 @@ class ScatterPlot(): # TODO: inherit from dataframe maybe?
             #except KeyError:
             #    pass # TODO: what should be raised here?
 
+    def run_plotly(self, outfile):
+            from plotly import offline
+            from use_plotly import remove_plotly_buttons
+            fig = dict(data=self.plotly_conf.data.values(),
+                       layout=self.plotly_conf.layout)
+            # Use py.iplot() for IPython notebook
+            url = offline.plot(fig, filename=outfile,
+                               show_link=False, auto_open=False)
+            # don't want anyone importing private data
+            # into plotly via an accidental button click
+            if self.plotly_conf.kill_button:
+                remove_plotly_buttons(url)
+            offline.offline.webbrowser.open(url)
+
     def _plotfunc(self, outfile='figure'):
         xlab, ylab, zlab, slab = (self.plot.which_x, self.plot.which_y,
                                   self.plot.which_z, self.plot.which_s )
@@ -263,18 +277,7 @@ class ScatterPlot(): # TODO: inherit from dataframe maybe?
                 self.plotly_conf.data[dset].update(defaults_3d)
 
         if self.plotly_conf.can_use:
-            from plotly import offline
-            from use_plotly import remove_plotly_buttons
-            fig = dict(data=self.plotly_conf.data.values(),
-                       layout=self.plotly_conf.layout)
-            # Use py.iplot() for IPython notebook
-            url = offline.plot(fig, filename=outfile,
-                               show_link=False, auto_open=False)
-            # don't want anyone importing private data
-            # into plotly via an accidental button click
-            if self.plotly_conf.kill_button:
-                remove_plotly_buttons(url)
-            offline.offline.webbrowser.open(url)
+            self.run_plotly(outfile)
 
         if self.plt_conf.can_use:
             from use_matplotlib import matplotlib_set_plot
