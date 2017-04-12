@@ -21,9 +21,9 @@ def get_size(df, key, size=10, size_range=9):
 
 def ravel_columns(df, columns_to_ravel=[], new_columns=[]):
     """
-    "Flattens" the dataframe. Example usage: 
+    "Flattens" the dataframe. Example usage:
     >>> ravel_columns(df, [['A1','B1'],['A2','B2']], ['A','B'])
-    
+
     will return a dataframe with all A2/B2 values merged under A1/B1 into
     new columns called A and B. Warning: the remaining columns will be
     duplicated!
@@ -50,7 +50,6 @@ def ravel_columns(df, columns_to_ravel=[], new_columns=[]):
         to_merge.append(subdf)
     # snap, this causes pandas bug #6963!
     df = pd.concat(to_merge, ignore_index=True)
-    # should remove theth pu
 
     return df
 
@@ -183,7 +182,7 @@ class ScatterPlot(): # TODO: inherit from dataframe maybe?
                 self.plotly_conf.can_use = False
             elif backend is 'plotly':
                 raise ImportError("Can't import plotly!")
-        
+
         if self.plt_conf.can_use:
             from use_matplotlib import matplotlib_make_figure
             fig, ax = matplotlib_make_figure()
@@ -200,21 +199,35 @@ class ScatterPlot(): # TODO: inherit from dataframe maybe?
         # reading in and processing the .csv files
         for dset, fname in datasets.items():
             self.data[dset] = pd.read_csv(fname)
-        
+
         for dset in self.data.keys():
             for key_merged, keys_to_merge in combine_columns.items():
                 self.data[dset] = merge_df(self.data[dset], key_merged,
                                            keys_to_merge, verify_integrity=True)
             # TODO: this should be optional, right?
-            try:
-                # FIXME: deprecated, removed in new pandas versions... *sigh*
-                self.data[dset].drop_duplicates(cols=[self.plot.which_x,
-                                                      self.plot.which_y,
-                                                      self.plot.which_z],
-                                                inplace=True)
-            except KeyError:
-                pass # TODO: what should be raised here?
-            
+            #try:
+            #    # FIXME: deprecated, removed in new pandas versions... *sigh*
+            #    self.data[dset].drop_duplicates([self.plot.which_x,
+            #                                     self.plot.which_y,
+            #                                     self.plot.which_z],
+            #                                    inplace=True)
+            #except KeyError:
+            #    pass # TODO: what should be raised here?
+
+    def run_plotly(self, outfile):
+            from plotly import offline
+            from use_plotly import remove_plotly_buttons
+            fig = dict(data=self.plotly_conf.data.values(),
+                       layout=self.plotly_conf.layout)
+            # Use py.iplot() for IPython notebook
+            url = offline.plot(fig, filename=outfile,
+                               show_link=False, auto_open=False)
+            # don't want anyone importing private data
+            # into plotly via an accidental button click
+            if self.plotly_conf.kill_button:
+                remove_plotly_buttons(url)
+            offline.offline.webbrowser.open(url)
+
     def _plotfunc(self, outfile='figure'):
         xlab, ylab, zlab, slab = (self.plot.which_x, self.plot.which_y,
                                   self.plot.which_z, self.plot.which_s )
@@ -262,21 +275,10 @@ class ScatterPlot(): # TODO: inherit from dataframe maybe?
                         )
                 # setting default plotting parameters
                 self.plotly_conf.data[dset].update(defaults_3d)
-        
+
         if self.plotly_conf.can_use:
-            from plotly import offline
-            from use_plotly import remove_plotly_buttons
-            fig = dict(data=self.plotly_conf.data.values(),
-                       layout=self.plotly_conf.layout)
-            # Use py.iplot() for IPython notebook
-            url = offline.plot(fig, filename=outfile,
-                               show_link=False, auto_open=False)
-            # don't want anyone importing private data 
-            # into plotly via an accidental button click
-            if self.plotly_conf.kill_button:
-                remove_plotly_buttons(url)
-            offline.offline.webbrowser.open(url)
-        
+            self.run_plotly(outfile)
+
         if self.plt_conf.can_use:
             from use_matplotlib import matplotlib_set_plot
             matplotlib_set_plot(self.plt_conf.axis, self.plot, outfile)
