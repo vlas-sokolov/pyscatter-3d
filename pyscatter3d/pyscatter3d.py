@@ -173,7 +173,7 @@ class ScatterPlot(): # TODO: inherit from dataframe maybe?
         self.plt_conf.can_use = False if backend is 'plotly' else True
         try:
             import plotly
-            from use_plotly import get_plotly_layout
+            from .use_plotly import get_plotly_layout
             layout = get_plotly_layout(self.plot)
             self.plotly_conf.layout = layout
         except ImportError:
@@ -184,7 +184,7 @@ class ScatterPlot(): # TODO: inherit from dataframe maybe?
                 raise ImportError("Can't import plotly!")
 
         if self.plt_conf.can_use:
-            from use_matplotlib import matplotlib_make_figure
+            from .use_matplotlib import matplotlib_make_figure
             fig, ax = matplotlib_make_figure()
             self.plt_conf.axis = ax
             self.plt_conf.figure = fig
@@ -216,8 +216,8 @@ class ScatterPlot(): # TODO: inherit from dataframe maybe?
 
     def run_plotly(self, outfile):
             from plotly import offline
-            from use_plotly import remove_plotly_buttons
-            fig = dict(data=self.plotly_conf.data.values(),
+            from .use_plotly import remove_plotly_buttons
+            fig = dict(data=list(self.plotly_conf.data.values()),
                        layout=self.plotly_conf.layout)
             # Use py.iplot() for IPython notebook
             url = offline.plot(fig, filename=outfile,
@@ -237,8 +237,8 @@ class ScatterPlot(): # TODO: inherit from dataframe maybe?
         get_txt=self.plot.dset2text
         # TODO: move it somewhere else?
         # could put it as an attribute under self.plotly_conf
-        from use_plotly import defaults_3d
-        from use_matplotlib import fix_axes3d_color
+        from .use_plotly import defaults_3d
+        from .use_matplotlib import fix_axes3d_color
         for dset in self.data.keys():
             try:
                 X, Y, Z = (self.data[dset][xlab],
@@ -280,5 +280,5 @@ class ScatterPlot(): # TODO: inherit from dataframe maybe?
             self.run_plotly(outfile)
 
         if self.plt_conf.can_use:
-            from use_matplotlib import matplotlib_set_plot
+            from .use_matplotlib import matplotlib_set_plot
             matplotlib_set_plot(self.plt_conf.axis, self.plot, outfile)
