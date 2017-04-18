@@ -228,9 +228,13 @@ class ScatterPlot(): # TODO: inherit from dataframe maybe?
                 remove_plotly_buttons(url)
             offline.offline.webbrowser.open(url)
 
-    def _plotfunc(self, outfile='figure'):
+    def _plotfunc(self, outfile='figure', render=True):
         xlab, ylab, zlab, slab = (self.plot.which_x, self.plot.which_y,
                                   self.plot.which_z, self.plot.which_s )
+        """
+        Sets up the dictionary storing all the plotting parameters and,
+        if render==True, display them with the backends enabled.
+        """
         msize, mrange = self.plot.marker_size, self.plot.marker_srange
         get_col=self.plot.dset2color
         get_sym=self.plot.dset2symbol
@@ -276,9 +280,9 @@ class ScatterPlot(): # TODO: inherit from dataframe maybe?
                 # setting default plotting parameters
                 self.plotly_conf.data[dset].update(defaults_3d)
 
-        if self.plotly_conf.can_use:
+        if self.plotly_conf.can_use and render:
             self.run_plotly(outfile)
 
-        if self.plt_conf.can_use:
+        if self.plt_conf.can_use and render:
             from .use_matplotlib import matplotlib_set_plot
             matplotlib_set_plot(self.plt_conf.axis, self.plot, outfile)
