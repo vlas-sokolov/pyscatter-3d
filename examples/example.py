@@ -7,7 +7,7 @@ D = np.sqrt(X0**2+Y0**2) # radial distance
 Z0 = np.sinc(D)
 
 # drawing random points of a sphere
-_ = np.random.randn(3, 1e3)
+_ = np.random.randn(3, 1000)
 X1,Y1,Z1 = _/np.linalg.norm(_, axis=0)
 
 np.savetxt('sinc.csv', np.array([arr.flatten() for arr in [X0,Y0,Z0,1/D]]).T,
